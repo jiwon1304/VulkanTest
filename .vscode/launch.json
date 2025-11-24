@@ -16,7 +16,7 @@
             "name": "Darwin/arm64/Debug",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Debug/VulkanTest",
+            "program": "${workspaceFolder}/build/VulkanTest",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

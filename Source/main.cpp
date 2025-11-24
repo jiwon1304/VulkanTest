@@ -76,12 +76,22 @@ private:
         const char** glfwExtensions;
         glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-        createInfo.enabledExtensionCount = glfwExtensionCount;
-        createInfo.ppEnabledExtensionNames = glfwExtensions;
+        std::vector<const char*> requiredExtensions;
+
+        for(uint32_t i = 0; i < glfwExtensionCount; i++) {
+            requiredExtensions.emplace_back(glfwExtensions[i]);
+        }
+
+        requiredExtensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+        createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
+        createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
         createInfo.enabledLayerCount = 0;
 
-        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
+        VkResult Result = vkCreateInstance(&createInfo, nullptr, &instance);
+        if (Result != VK_SUCCESS) {
             throw std::runtime_error("failed to create instance!");
         }
     }
