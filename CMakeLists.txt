@@ -13,6 +13,9 @@ if(NOT Vulkan_FOUND)
         NAMES vulkan/vulkan.h
         HINTS
             "$ENV{VULKAN_SDK}/Include"
+            "/opt/homebrew/include"
+            "/usr/local/include"
+            "/usr/include"
     )
 
     find_library(VULKAN_LIBRARY
@@ -20,7 +23,31 @@ if(NOT Vulkan_FOUND)
         HINTS
             "$ENV{VULKAN_SDK}/Lib"
             "$ENV{VULKAN_SDK}/Lib32"
+            "/opt/homebrew/lib"
+            "/usr/local/lib"
+            "/usr/lib"
     )
+
+    # macOS fallback: try to find MoltenVK (Homebrew provides molten-vk / vulkan-loader)
+    if(NOT VULKAN_INCLUDE_DIR AND NOT VULKAN_LIBRARY AND CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+        find_library(MOLTENVK_LIBRARY
+            NAMES MoltenVK libMoltenVK
+            HINTS
+                "/opt/homebrew/lib"
+                "/usr/local/lib"
+        )
+
+        find_path(VULKAN_INCLUDE_DIR
+            NAMES vulkan/vulkan.h
+            HINTS
+                "/opt/homebrew/include"
+                "/usr/local/include"
+        )
+
+        if(MOLTENVK_LIBRARY AND VULKAN_INCLUDE_DIR)
+            set(VULKAN_LIBRARY ${MOLTENVK_LIBRARY})
+        endif()
+    endif()
 
     if(VULKAN_INCLUDE_DIR AND VULKAN_LIBRARY)
         add_library(Vulkan::Vulkan UNKNOWN IMPORTED)
