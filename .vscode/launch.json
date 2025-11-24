@@ -9,7 +9,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            // "console": "externalTerminal"
+            "console": "integratedTerminal",
             "preLaunchTask": "CMake: Windows/x64/Debug"
         },
         {
@@ -21,7 +21,7 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            // "console": "externalTerminal"
+            "console": "integratedTerminal",
             "preLaunchTask": "CMake: Darwin/arm64/Debug"
         }
     ]
