@@ -1,0 +1,59 @@
+cmake_minimum_required(VERSION 3.20)
+
+project(VulkanTest LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+find_package(Vulkan QUIET)
+
+if(NOT Vulkan_FOUND)
+    find_path(VULKAN_INCLUDE_DIR
+        NAMES vulkan/vulkan.h
+        HINTS
+            "$ENV{VULKAN_SDK}/Include"
+    )
+
+    find_library(VULKAN_LIBRARY
+        NAMES vulkan-1 vulkan
+        HINTS
+            "$ENV{VULKAN_SDK}/Lib"
+            "$ENV{VULKAN_SDK}/Lib32"
+    )
+
+    if(VULKAN_INCLUDE_DIR AND VULKAN_LIBRARY)
+        add_library(Vulkan::Vulkan UNKNOWN IMPORTED)
+        set_target_properties(Vulkan::Vulkan PROPERTIES
+            IMPORTED_LOCATION "${VULKAN_LIBRARY}"
+            INTERFACE_INCLUDE_DIRECTORIES "${VULKAN_INCLUDE_DIR}"
+        )
+        set(Vulkan_FOUND ON)
+    else()
+        message(FATAL_ERROR "Vulkan SDK not found. Please install the Vulkan SDK or set VULKAN_SDK.")
+    endif()
+endif()
+
+add_subdirectory(ThirdParty)
+
+add_executable(VulkanTest
+    Source/main.cpp
+)
+
+target_include_directories(VulkanTest
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries(VulkanTest
+    PRIVATE
+        Vulkan::Vulkan
+        ThirdParty::glfw
+    glm::glm
+)
+
+add_custom_command(TARGET VulkanTest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:ThirdParty::glfw>
+        $<TARGET_FILE_DIR:VulkanTest>
+)
