@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(Vulkan QUIET)
 
+# Find Vulkan SDK manually if not found
 if(NOT Vulkan_FOUND)
     find_path(VULKAN_INCLUDE_DIR
         NAMES vulkan/vulkan.h
@@ -62,6 +63,42 @@ if(NOT Vulkan_FOUND)
 endif()
 
 add_subdirectory(ThirdParty)
+
+# Bring in ImGui (core + GLFW/Vulkan backends) via FetchContent and build as a static target
+include(FetchContent)
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG v1.89.8
+)
+FetchContent_GetProperties(imgui)
+if(NOT imgui_POPULATED)
+    FetchContent_Populate(imgui)
+
+    add_library(imgui STATIC
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_vulkan.cpp
+    )
+
+    target_include_directories(imgui
+        PUBLIC
+            ${imgui_SOURCE_DIR}
+            ${imgui_SOURCE_DIR}/backends
+    )
+
+    # Link with Vulkan and GLFW (GLFW target provided by ThirdParty::glfw)
+    target_link_libraries(imgui
+        PUBLIC
+            Vulkan::Vulkan
+            ThirdParty::glfw
+    )
+
+    add_library(ThirdParty::imgui ALIAS imgui)
+endif()
 
 add_executable(VulkanTest
     Source/main.cpp
