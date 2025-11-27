@@ -71,10 +71,10 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/ocornut/imgui.git
     GIT_TAG v1.89.8
 )
-FetchContent_GetProperties(imgui)
-if(NOT imgui_POPULATED)
-    FetchContent_Populate(imgui)
+FetchContent_MakeAvailable(imgui)
 
+# If the imgui project didn't create an `imgui` target, create one from sources.
+if(NOT TARGET imgui)
     add_library(imgui STATIC
         ${imgui_SOURCE_DIR}/imgui.cpp
         ${imgui_SOURCE_DIR}/imgui_draw.cpp
@@ -96,7 +96,9 @@ if(NOT imgui_POPULATED)
             Vulkan::Vulkan
             ThirdParty::glfw
     )
+endif()
 
+if(NOT TARGET ThirdParty::imgui)
     add_library(ThirdParty::imgui ALIAS imgui)
 endif()
 
