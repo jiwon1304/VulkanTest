@@ -64,30 +64,23 @@ endif()
 
 add_subdirectory(ThirdParty)
 
-# Bring in ImGui (core + GLFW/Vulkan backends) via FetchContent and build as a static target
-include(FetchContent)
-FetchContent_Declare(
-    imgui
-    GIT_REPOSITORY https://github.com/ocornut/imgui.git
-    GIT_TAG v1.89.8
-)
-FetchContent_MakeAvailable(imgui)
+# Define ImGui using local source files
+set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui)
 
-# If the imgui project didn't create an `imgui` target, create one from sources.
 if(NOT TARGET imgui)
     add_library(imgui STATIC
-        ${imgui_SOURCE_DIR}/imgui.cpp
-        ${imgui_SOURCE_DIR}/imgui_draw.cpp
-        ${imgui_SOURCE_DIR}/imgui_tables.cpp
-        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
-        ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
-        ${imgui_SOURCE_DIR}/backends/imgui_impl_vulkan.cpp
+        ${IMGUI_DIR}/imgui.cpp
+        ${IMGUI_DIR}/imgui_draw.cpp
+        ${IMGUI_DIR}/imgui_tables.cpp
+        ${IMGUI_DIR}/imgui_widgets.cpp
+        ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+        ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
     )
 
     target_include_directories(imgui
         PUBLIC
-            ${imgui_SOURCE_DIR}
-            ${imgui_SOURCE_DIR}/backends
+            ${IMGUI_DIR}
+            ${IMGUI_DIR}/backends
     )
 
     # Link with Vulkan and GLFW (GLFW target provided by ThirdParty::glfw)
